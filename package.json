@@ -1,0 +1,26 @@
+{
+  "name": "thicharts",
+  "version": "0.1.0",
+  "description": "A data visualization components project based on Three.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zyx871017/ThiCharts.git"
+  },
+  "keywords": [
+    "Three.js",
+    "Data",
+    "Visualization"
+  ],
+  "author": "zhaoyuxiang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zyx871017/ThiCharts/issues"
+  },
+  "homepage": "https://github.com/zyx871017/ThiCharts#readme",
+  "dependencies": {
+  }
+}
