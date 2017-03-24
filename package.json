@@ -22,5 +22,11 @@
   },
   "homepage": "https://github.com/zyx871017/ThiCharts#readme",
   "dependencies": {
+    "webpack": "^2.3.1"
+  },
+  "devDependencies": {
+    "express": "^4.15.2",
+    "gulp": "^3.9.1",
+    "three": "^0.84.0"
   }
 }
