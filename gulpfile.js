@@ -2,22 +2,23 @@
  * Created by zhaoyuxiang on 2017/3/24.
  */
 var gulp = require('gulp');
+var config = require('./webpack.config.js');
+var webpack = require('webpack');
+var webpackDevServer = require('webpack-dev-server');
 
 
 gulp.task('server', function () {
-  var app = new (require('express'))();
-
-  app.get('/', function (req, res) {
-    res.send('Hello World!');
+  var compiler = webpack(config);
+  var server = new webpackDevServer(compiler, {
+    hot: true,
+    quiet: false,
+    noInfo: false,
+    historyApiFallback: true
   });
-
-  var server = app.listen(3001, function () {
-    var host = server.address().address;
-    var port = server.address().port;
-    console.log(host);
-    console.log(port);
-
-    console.log('Example app listening at http://localhost:3001');
-  });
-
+  server.listen(3000, 'localhost', function (err) {
+    if(err){
+      console.log(err);
+    }
+    console.log('Listening at http://localhost:3001 !');
+  })
 });
