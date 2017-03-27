@@ -11,14 +11,14 @@ gulp.task('server', function () {
   var compiler = webpack(config);
   var server = new webpackDevServer(compiler, {
     hot: true,
-    quiet: false,
-    noInfo: false,
+    noInfo: true,
+    publicPath: config.output.publicPath,
     historyApiFallback: true
   });
   server.listen(3000, 'localhost', function (err) {
     if(err){
       console.log(err);
     }
-    console.log('Listening at http://localhost:3001 !');
+    console.log('Listening at http://localhost:3000!');
   })
 });
