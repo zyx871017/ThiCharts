@@ -17,5 +17,16 @@ var three = require('three');
     chart.id = 'thichart_' + new Date().getDate();
     return chart;
   };
+
+  thiChartsProto.setOption = function (opt) {
+    var option = this._opt = Object.assign({}, this._opt, opt);
+    if(!option.data){
+      throw new Error('Option must have data attribution!');
+      return;
+    }
+    console.log(option.data);
+  }
+
+
   window.ThiCharts = window.ThiCharts || ThiCharts;
 })(window);
