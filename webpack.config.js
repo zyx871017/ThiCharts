@@ -22,7 +22,7 @@ module.exports = {
       template: 'index.html',
       filename: 'index.html',
       chunks: ['example', 'home', 'lib'],
-      inject: 'head'
+      inject: 'body'
     }),
     new HtmlWebpackPlugin({
       title: 'three.js demo',

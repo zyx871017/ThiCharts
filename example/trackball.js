@@ -15,7 +15,7 @@ function init() {
   camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000);
   // camera = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / -2, window.innerHeight / 2, 1, 1000);
   camera.position.z = 50;
-  camera.position.y = 10;
+  camera.position.y = 50;
   controls = new THREE.TrackballControls(camera);
   controls.rotateSpeed = 1.0;
   controls.zoomSpeed = 1.2;
@@ -28,7 +28,7 @@ function init() {
   pickingScene = new THREE.Scene();
   pickingTexture = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
   pickingTexture.texture.minFilter = THREE.LinearFilter;
-  scene.add(new THREE.AmbientLight(0x555555));
+  scene.add(new THREE.AmbientLight(0xffffff));
   var light = new THREE.SpotLight(0xffffff, 1.5);
   light.position.set(0, 500, 2000);
   scene.add(light);
