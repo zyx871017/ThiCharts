@@ -58,8 +58,12 @@
       return;
     }
     console.log(option.data);
+    this._canvas = document.createElement('canvas');
+    this._canvas.width = parseInt(this._dom.style.width);
+    this._canvas.height = parseInt(this._dom.style.height);
+    this._dom.appendChild(this._canvas);
     this.init = function () {
-      this._camera = new THREE.PerspectiveCamera(45, this._dom.width / this._dom.height, 1, 10000);
+      this._camera = new THREE.PerspectiveCamera(45, this._canvas.width / this._canvas.height, 1, 10000);
       this._camera.position.set(0, 300, 600);
       this._controls = new THREE.OrbitControls(this._camera);
       this._controls.target.set(0, 0, 0);
@@ -152,20 +156,70 @@
 
       this._scene.add(light4);
       this._raycaster = new THREE.Raycaster();
-      this._renderer = new THREE.WebGLRenderer({canvas: this._dom});
+      this._renderer = new THREE.WebGLRenderer({canvas: this._canvas});
       this._renderer.shadowMap.enabled = true;
       this._renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       this._renderer.setClearColor(0x000000);
       this._renderer.setPixelRatio(window.devicePixelRatio);
-      this._renderer.setSize(this._dom.width, this._dom.height);
-      this._dom.addEventListener('mousemove', this.onMouseMove.bind(this), false);
+      this._renderer.setSize(this._canvas.width, this._canvas.height);
+
+      var axisText = this._opt.axisValue;
+      // 添加文字
+      for (var i = 0; i < axisText.x.length; i++) {
+        var textEleFront = document.createElement('div');
+        var textEleBack = document.createElement('div');
+        textEleFront.className = 'axisText';
+        textEleBack.className = 'axisText';
+        textEleFront.textContent = axisText.x[i];
+        textEleBack.textContent = axisText.x[i];
+        var textObjectFront = new THREE.CSS3DObject(textEleFront);
+        var textObjectBack = new THREE.CSS3DObject(textEleBack);
+        textObjectFront.position.x = (axisText.x.length / 2 - axisText.x.length + i + 0.5) * 30 + 5;
+        textObjectFront.position.y = 0;
+        textObjectFront.position.z = 120;
+        textObjectFront.rotation.x = -Math.PI / 2;
+        this._scene.add(textObjectFront);
+        textObjectBack.position.x = (axisText.x.length / 2 - axisText.x.length + i + 0.5) * 30 + 5;
+        textObjectBack.position.y = 0;
+        textObjectBack.position.z = -120;
+        textObjectBack.rotation.x = -Math.PI / 2;
+        this._scene.add(textObjectBack);
+      }
+      for (var j = 0; j < axisText.z.length; j++) {
+        var textEleLeft = document.createElement('div');
+        var textEleRight = document.createElement('div');
+        textEleLeft.className = 'axisText';
+        textEleRight.className = 'axisText';
+        textEleLeft.textContent = axisText.z[j];
+        textEleRight.textContent = axisText.z[j];
+        var textObjectLeft = new THREE.CSS3DObject(textEleLeft);
+        var textObjectRight = new THREE.CSS3DObject(textEleRight);
+        textObjectLeft.position.x = 120;
+        textObjectLeft.position.y = 0;
+        textObjectLeft.position.z = (axisText.z.length / 2 - axisText.z.length + j + 0.5) * 30 + 5;
+        textObjectLeft.rotation.x = -Math.PI / 2;
+        this._scene.add(textObjectLeft);
+        textObjectRight.position.x = -120;
+        textObjectRight.position.y = 0;
+        textObjectRight.position.z = (axisText.z.length / 2 - axisText.z.length + j + 0.5) * 30 + 5;
+        textObjectRight.rotation.x = -Math.PI / 2;
+        this._scene.add(textObjectRight);
+      }
+      this._CSS3DRenderer = new THREE.CSS3DRenderer();
+      this._CSS3DRenderer.setSize(this._canvas.width, this._canvas.height);
+      this._CSS3DRenderer.domElement.style.position = 'absolute';
+      this._CSS3DRenderer.domElement.style.top = '0';
+      this._CSS3DRenderer.domElement.style.left = '0';
+      this._dom.appendChild(this._CSS3DRenderer.domElement);
+
+      this._canvas.addEventListener('mousemove', this.onMouseMove.bind(this), false);
       // this._dom.addEventListener('resize', this.onWindowResize, false);
     };
 
     this.onMouseMove = function (event) {
       event.preventDefault();
-      this._mouse.x = (event.clientX / this._dom.width) * 2 - 1;
-      this._mouse.y = -(event.clientY / this._dom.height) * 2 + 1;
+      this._mouse.x = (event.clientX / this._canvas.width) * 2 - 1;
+      this._mouse.y = -(event.clientY / this._canvas.height) * 2 + 1;
     };
 
     this.onWindowResize = function () {
@@ -187,8 +241,10 @@
           if (this.INTERSECTED && this.INTERSECTED.material.emissive)
             this.INTERSECTED.material.emissive.setHex(this.INTERSECTED.currentHex);
           this.INTERSECTED = intersects[0].object;
-          this.INTERSECTED.currentHex = this.INTERSECTED.material.emissive.getHex();
-          this.INTERSECTED.material.emissive.setHex(0xff0000);
+          if (this.INTERSECTED.material.emissive) {
+            this.INTERSECTED.currentHex = this.INTERSECTED.material.emissive.getHex();
+            this.INTERSECTED.material.emissive.setHex(0xff0000);
+          }
         }
       } else {
         if (this.INTERSECTED && this.INTERSECTED.material.emissive)
@@ -196,6 +252,7 @@
         this.INTERSECTED = null;
       }
       this._renderer.render(this._scene, this._camera);
+      this._CSS3DRenderer.render(this._scene, this._camera);
     };
 
 

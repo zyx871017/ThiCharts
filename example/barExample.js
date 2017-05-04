@@ -2,7 +2,7 @@
  * Created by zhaoyuxiang on 2017/3/27.
  */
 window.onload = function () {
-  var dom = document.getElementById('thiCharts');
+  var dom = document.getElementById('container');
 
   var chart = new ThiCharts(dom);
   //情景设定：同时摇两个筛子1W次，A筛子的要中数值为X轴，B筛子要中的数值为Z轴，摇中相应数值的次数为Z轴
