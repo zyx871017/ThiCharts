@@ -58,9 +58,12 @@
       return;
     }
     console.log(option.data);
+    this._dom.style.backgroundColor = '#000';
     this._canvas = document.createElement('canvas');
     this._canvas.width = parseInt(this._dom.style.width);
     this._canvas.height = parseInt(this._dom.style.height);
+    this._canvas.style.position = 'absolute';
+    this._canvas.style.zIndex = 10;
     this._dom.appendChild(this._canvas);
     this.init = function () {
       this._camera = new THREE.PerspectiveCamera(45, this._canvas.width / this._canvas.height, 1, 10000);
@@ -156,10 +159,10 @@
 
       this._scene.add(light4);
       this._raycaster = new THREE.Raycaster();
-      this._renderer = new THREE.WebGLRenderer({canvas: this._canvas});
+      this._renderer = new THREE.WebGLRenderer({canvas: this._canvas, alpha: true});
       this._renderer.shadowMap.enabled = true;
       this._renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-      this._renderer.setClearColor(0x000000);
+      // this._renderer.setClearColor(0x000000);
       this._renderer.setPixelRatio(window.devicePixelRatio);
       this._renderer.setSize(this._canvas.width, this._canvas.height);
 
@@ -174,12 +177,12 @@
         textEleBack.textContent = axisText.x[i];
         var textObjectFront = new THREE.CSS3DObject(textEleFront);
         var textObjectBack = new THREE.CSS3DObject(textEleBack);
-        textObjectFront.position.x = (axisText.x.length / 2 - axisText.x.length + i + 0.5) * 30 + 5;
+        textObjectFront.position.x = (axisText.x.length / 2 - axisText.x.length + i + 0.5) * 30;
         textObjectFront.position.y = 0;
         textObjectFront.position.z = 120;
         textObjectFront.rotation.x = -Math.PI / 2;
         this._scene.add(textObjectFront);
-        textObjectBack.position.x = (axisText.x.length / 2 - axisText.x.length + i + 0.5) * 30 + 5;
+        textObjectBack.position.x = (axisText.x.length / 2 - axisText.x.length + i + 0.5) * 30;
         textObjectBack.position.y = 0;
         textObjectBack.position.z = -120;
         textObjectBack.rotation.x = -Math.PI / 2;
