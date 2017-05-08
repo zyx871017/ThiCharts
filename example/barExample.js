@@ -16,6 +16,10 @@ window.onload = function () {
       [1, 4, 3, 2, 2, 4],
       [6, 2, 3, 2, 5, 2]
     ],
+    axisName: {
+      x: '一号筛子',
+      z: '二号筛子'
+    },
     axisUnit: {
       x: '',
       y: '次',

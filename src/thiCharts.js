@@ -7,7 +7,7 @@
     this._opt = null;
     this._renderer = null;
     this._camera = null;
-    this._graph = null;
+    this._dataArray = [];
     this._scene = null;
     this._controls = null;
     this._light = null;
@@ -33,7 +33,6 @@
     chart._light = new THREE.AmbientLight(0xffffff);
     chart._scene.add(chart._light);
     chart._raycaster = null;
-    console.log(chart);
     var data = chart._opt.data;
     for (var i = 0; i < data.length; i++) {
       for (var j = 0; j < data[i].length; j++) {
@@ -57,7 +56,6 @@
       throw new Error('Option must have data attribution!');
       return;
     }
-    console.log(option.data);
     this._dom.style.backgroundColor = '#000';
     this._canvas = document.createElement('canvas');
     this._canvas.width = parseInt(this._dom.style.width);
@@ -88,17 +86,23 @@
       light4.shadow.camera.near = 2;
       light4.shadow.camera.far = 400;
       light4.shadow.camera.fov = 30;
+      var axisText = this._opt.axisValue;
       var data = this._opt.data;
       // 添加柱形
       for (var i = 0; i < data.length; i++) {
         for (var j = 0; j < data[i].length; j++) {
-          var geometry = new THREE.BoxBufferGeometry(20, data[i][j] * 10, 20);
+          var geometry = new THREE.BoxBufferGeometry(20, data[i][j] * 20, 20);
           var object = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color: 0x2fb3ff}));
           geometry.receiveShadow = true;
           geometry.castShadow = true;
           object.position.x = (data.length / 2 - data.length + i + 0.5) * 30;
-          object.position.y = data[i][j] / 2 * 10;
+          object.position.y = data[i][j] / 2 * 20;
           object.position.z = (data[i].length / 2 - data[i].length + j + 0.5) * 30;
+          this._dataArray.push({
+            position: object.position,
+            data: data[i][j],
+            axis: {x: axisText.x[i], z: axisText.z[j]}
+          });
           light4.target = object;
           this._scene.add(object);
         }
@@ -124,10 +128,10 @@
       p2.set(100, 0, -100);
       p3.set(-100, 0, -100);
       p4.set(-100, 0, 100);
-      p5.set(100, 100, 100);
-      p6.set(100, 100, -100);
-      p7.set(-100, 100, -100);
-      p8.set(-100, 100, 100);
+      p5.set(100, 140, 100);
+      p6.set(100, 140, -100);
+      p7.set(-100, 140, -100);
+      p8.set(-100, 140, 100);
       axisBottom.vertices.push(p1);
       axisBottom.vertices.push(p2);
       axisBottom.vertices.push(p3);
@@ -157,6 +161,7 @@
       this._scene.add(line3);
       this._scene.add(line4);
 
+      //普通场景添加
       this._scene.add(light4);
       this._raycaster = new THREE.Raycaster();
       this._renderer = new THREE.WebGLRenderer({canvas: this._canvas, alpha: true});
@@ -166,7 +171,6 @@
       this._renderer.setPixelRatio(window.devicePixelRatio);
       this._renderer.setSize(this._canvas.width, this._canvas.height);
 
-      var axisText = this._opt.axisValue;
       // 添加文字
       for (var i = 0; i < axisText.x.length; i++) {
         var textEleFront = document.createElement('div');
@@ -199,15 +203,17 @@
         var textObjectRight = new THREE.CSS3DObject(textEleRight);
         textObjectLeft.position.x = 120;
         textObjectLeft.position.y = 0;
-        textObjectLeft.position.z = (axisText.z.length / 2 - axisText.z.length + j + 0.5) * 30 + 5;
+        textObjectLeft.position.z = (axisText.z.length / 2 - axisText.z.length + j + 0.5) * 30;
         textObjectLeft.rotation.x = -Math.PI / 2;
         this._scene.add(textObjectLeft);
         textObjectRight.position.x = -120;
         textObjectRight.position.y = 0;
-        textObjectRight.position.z = (axisText.z.length / 2 - axisText.z.length + j + 0.5) * 30 + 5;
+        textObjectRight.position.z = (axisText.z.length / 2 - axisText.z.length + j + 0.5) * 30;
         textObjectRight.rotation.x = -Math.PI / 2;
         this._scene.add(textObjectRight);
       }
+
+      // CSS3D场景添加
       this._CSS3DRenderer = new THREE.CSS3DRenderer();
       this._CSS3DRenderer.setSize(this._canvas.width, this._canvas.height);
       this._CSS3DRenderer.domElement.style.position = 'absolute';
@@ -215,12 +221,121 @@
       this._CSS3DRenderer.domElement.style.left = '0';
       this._dom.appendChild(this._CSS3DRenderer.domElement);
 
+
+      //坐标轴标记添加
+      var material = new THREE.LineBasicMaterial({vertexColors: true});
+      for (var i = 0; i < axisText.x.length; i++) {
+        var p1 = new THREE.Vector3();
+        var p2 = new THREE.Vector3();
+        var p3 = new THREE.Vector3();
+        var p4 = new THREE.Vector3();
+        var axistickLeft = new THREE.Geometry();
+        var axistickRight = new THREE.Geometry();
+        p1.set(100, 0, (axisText.z.length / 2 - axisText.z.length + i + 0.5) * 30);
+        p2.set(105, 0, (axisText.z.length / 2 - axisText.z.length + i + 0.5) * 30);
+        p3.set(-100, 0, (axisText.z.length / 2 - axisText.z.length + i + 0.5) * 30);
+        p4.set(-105, 0, (axisText.z.length / 2 - axisText.z.length + i + 0.5) * 30);
+        axistickLeft.vertices.push(p1);
+        axistickLeft.vertices.push(p2);
+        axistickRight.vertices.push(p3);
+        axistickRight.vertices.push(p4);
+        axistickLeft.colors.push(color, color);
+        axistickRight.colors.push(color, color);
+        var tickLeft = new THREE.Line(axistickLeft, material, THREE.LineSegments);
+        var tickRight = new THREE.Line(axistickRight, material, THREE.LineSegments);
+        this._scene.add(tickLeft);
+        this._scene.add(tickRight);
+      }
+      for (var j = 0; j < axisText.z.length; j++) {
+        var p1 = new THREE.Vector3();
+        var p2 = new THREE.Vector3();
+        var p3 = new THREE.Vector3();
+        var p4 = new THREE.Vector3();
+        var axistickFront = new THREE.Geometry();
+        var axistickBack = new THREE.Geometry();
+        p1.set((axisText.z.length / 2 - axisText.z.length + j + 0.5) * 30, 0, 100);
+        p2.set((axisText.z.length / 2 - axisText.z.length + j + 0.5) * 30, 0, 105);
+        p3.set((axisText.z.length / 2 - axisText.z.length + j + 0.5) * 30, 0, -100);
+        p4.set((axisText.z.length / 2 - axisText.z.length + j + 0.5) * 30, 0, -105);
+        axistickFront.vertices.push(p1);
+        axistickFront.vertices.push(p2);
+        axistickBack.vertices.push(p3);
+        axistickBack.vertices.push(p4);
+        axistickFront.colors.push(color, color);
+        axistickBack.colors.push(color, color);
+        var tickFront = new THREE.Line(axistickFront, material, THREE.LineSegments);
+        var tickBack = new THREE.Line(axistickBack, material, THREE.LineSegments);
+        this._scene.add(tickFront);
+        this._scene.add(tickBack);
+      }
+      for (var k = 0; k < 7; k++) {
+        var p1 = new THREE.Vector3();
+        var p2 = new THREE.Vector3();
+        var p3 = new THREE.Vector3();
+        var p4 = new THREE.Vector3();
+        var p5 = new THREE.Vector3();
+        var p6 = new THREE.Vector3();
+        var p7 = new THREE.Vector3();
+        var p8 = new THREE.Vector3();
+        var axistickFrontLeft = new THREE.Geometry();
+        var axistickFrontRight = new THREE.Geometry();
+        var axistickBackLeft = new THREE.Geometry();
+        var axistickBackRigth = new THREE.Geometry();
+        p1.set(-100, (k + 1) * 20, 100);
+        p2.set(-95, (k + 1) * 20, 95);
+        p3.set(100, (k + 1) * 20, 100);
+        p4.set(95, (k + 1) * 20, 95);
+        p5.set(-100, (k + 1) * 20, -100);
+        p6.set(-95, (k + 1) * 20, -95);
+        p7.set(100, (k + 1) * 20, -100);
+        p8.set(95, (k + 1) * 20, -95);
+        axistickFrontLeft.vertices.push(p1);
+        axistickFrontLeft.vertices.push(p2);
+        axistickFrontRight.vertices.push(p3);
+        axistickFrontRight.vertices.push(p4);
+        axistickBackLeft.vertices.push(p5);
+        axistickBackLeft.vertices.push(p6);
+        axistickBackRigth.vertices.push(p7);
+        axistickBackRigth.vertices.push(p8);
+        axistickFrontLeft.colors.push(color, color);
+        axistickFrontRight.colors.push(color, color);
+        axistickBackLeft.colors.push(color, color);
+        axistickBackRigth.colors.push(color, color);
+        var tickFrontLeft = new THREE.Line(axistickFrontLeft, material, THREE.LineSegments);
+        var tickFrontRight = new THREE.Line(axistickFrontRight, material, THREE.LineSegments);
+        var tickBackLeft = new THREE.Line(axistickBackLeft, material, THREE.LineSegments);
+        var tickBackRight = new THREE.Line(axistickBackRigth, material, THREE.LineSegments);
+        this._scene.add(tickFrontLeft);
+        this._scene.add(tickFrontRight);
+        this._scene.add(tickBackLeft);
+        this._scene.add(tickBackRight);
+      }
+
+      // 添加悬浮窗体
+      var axisName = this._opt.axisName;
+      this._infoDiv = document.createElement('div');
+      this._infoDiv.className = 'thiInfoDiv';
+      this._Xinfo = document.createElement('div');
+      this._Xinfo.textContent = axisName.x;
+      this._Xinfo.className = 'thiXInfo';
+      this._Zinfo = document.createElement('div');
+      this._Zinfo.textContent = axisName.z;
+      this._Zinfo.className = 'thiZInfo';
+      this._value = document.createElement('div');
+      this._value.className = 'thiValue';
+      this._infoDiv.appendChild(this._Xinfo);
+      this._infoDiv.appendChild(this._Zinfo);
+      this._infoDiv.appendChild(this._value);
+      this._dom.appendChild(this._infoDiv);
+
       this._canvas.addEventListener('mousemove', this.onMouseMove.bind(this), false);
       // this._dom.addEventListener('resize', this.onWindowResize, false);
     };
 
     this.onMouseMove = function (event) {
       event.preventDefault();
+      this._infoDiv.style.top = (event.clientY + 10) + 'px';
+      this._infoDiv.style.left = (event.clientX + 10) + 'px';
       this._mouse.x = (event.clientX / this._canvas.width) * 2 - 1;
       this._mouse.y = -(event.clientY / this._canvas.height) * 2 + 1;
     };
@@ -236,22 +351,41 @@
       this.render();
     };
 
+    this.findData = function (position) {
+      var that = this;
+      this._dataArray.forEach(function (item) {
+        if (item.position == position) {
+          var axisName = that._opt.axisName;
+          that._Xinfo.textContent = axisName.x + ': ' + item.axis.x;
+          that._Zinfo.textContent = axisName.z + ': ' + item.axis.z;
+          that._value.textContent = item.data;
+          that._infoDiv.style.display = 'block';
+        }
+      })
+    };
+
     this.render = function () {
       this._raycaster.setFromCamera(this._mouse, this._camera);
       var intersects = this._raycaster.intersectObjects(this._scene.children);
       if (intersects.length > 0) {
         if (this.INTERSECTED != intersects[0].object) {
-          if (this.INTERSECTED && this.INTERSECTED.material.emissive)
+          if (this.INTERSECTED && this.INTERSECTED.material.emissive) {
+            this._infoDiv.style.display = 'none';
             this.INTERSECTED.material.emissive.setHex(this.INTERSECTED.currentHex);
+          }
           this.INTERSECTED = intersects[0].object;
           if (this.INTERSECTED.material.emissive) {
             this.INTERSECTED.currentHex = this.INTERSECTED.material.emissive.getHex();
+            this.findData(this.INTERSECTED.position);
             this.INTERSECTED.material.emissive.setHex(0xff0000);
           }
         }
       } else {
-        if (this.INTERSECTED && this.INTERSECTED.material.emissive)
+        if (this.INTERSECTED && this.INTERSECTED.material.emissive) {
+          //this.findData(this.INTERSECTED.position);
+          this._infoDiv.style.display = 'none';
           this.INTERSECTED.material.emissive.setHex(this.INTERSECTED.currentHex);
+        }
         this.INTERSECTED = null;
       }
       this._renderer.render(this._scene, this._camera);
